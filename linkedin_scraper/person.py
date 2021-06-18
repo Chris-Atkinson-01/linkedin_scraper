@@ -107,19 +107,19 @@ class Person(Scraper):
             EC.presence_of_element_located(
                 (
                     By.CLASS_NAME,
-                    self.__TOP_CARD,
+                    "text-heading-xlarge",
                 )
             )
         )
-        self.name = root.find_elements_by_xpath("//section/div/div/div/*/li")[0].text.strip()
+        self.name = root.text.strip()
 
         # get about
         try:
             see_more = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
                 EC.presence_of_element_located(
                     (
-                        By.XPATH,
-                        "//*[@class='lt-line-clamp__more']",
+                        By.CLASS_NAME,
+                        "inline-show-more-text__button",
                     )
                 )
             )
@@ -128,8 +128,8 @@ class Person(Scraper):
             about = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
                 EC.presence_of_element_located(
                     (
-                        By.XPATH,
-                        "//*[@class='lt-line-clamp__raw-line']",
+                        By.CLASS_NAME,
+                        'pv-about-section',
                     )
                 )
             )

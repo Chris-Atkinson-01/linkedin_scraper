@@ -1,26 +1,5 @@
 from . import constants as c
 
-class Contact(object):
-    name = None
-    occupation = None
-    url = None
-
-    def __init__(
-        self,
-        name=None,
-        occupation=None,
-        url=None
-    ):
-
-        self.name = name
-        self.occupation = occupation
-        self.url = url
-
-    def __repr__(self):
-        return "{name} ({occupation})".format(
-            name=self.name, occupation=self.occupation
-        )
-
 
 class Institution(object):
     institution_name = None
@@ -89,42 +68,23 @@ class Education(Institution):
     to_date = None
     description = None
     degree = None
+    field_of_study = None
 
-    def __init__(self, from_date=None, to_date=None, description=None, degree=None):
+    def __init__(self, from_date=None, to_date=None, description=None, degree=None, field_of_study=None):
         self.from_date = from_date
         self.to_date = to_date
         self.description = description
         self.degree = degree
+        self.field_of_study = field_of_study
 
     def __repr__(self):
-        return "{degree} at {company} from {from_date} to {to_date}".format(
+        return "{degree} in {field_of_study} at {company} from {from_date} to {to_date}".format(
             from_date=self.from_date,
             to_date=self.to_date,
             degree=self.degree,
             company=self.institution_name,
+            field_of_study=self.field_of_study,
         )
-
-
-class Interest(Institution):
-    title = None
-
-    def __init__(self, title=None):
-        self.title = title
-
-    def __repr__(self):
-        return self.title
-
-
-class Accomplishment(Institution):
-    category = None
-    title = None
-
-    def __init__(self, category=None, title=None):
-        self.category = category
-        self.title = title
-
-    def __repr__(self):
-        return self.category + ": " + self.title
 
 
 class Scraper(object):

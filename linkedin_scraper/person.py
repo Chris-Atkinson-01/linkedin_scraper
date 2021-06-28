@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from .objects import Experience, Education, Scraper, Interest, Accomplishment, Contact
+from .objects import Experience, Education, Scraper
 import os
 
 
@@ -237,79 +237,19 @@ class Person(Scraper):
                 except:
                     degree = None
                     from_date, to_date = (None, None)
+                try:
+                    field_of_study = (
+                        school.find_element_by_class_name("pv-entity__fos")
+                            .find_elements_by_tag_name("span")[1]
+                            .text.strip()
+                    )
+                except:
+                    field_of_study = None
                 education = Education(
-                    from_date=from_date, to_date=to_date, degree=degree
+                    from_date=from_date, to_date=to_date, degree=degree, field_of_study=field_of_study
                 )
                 education.institution_name = university
                 self.add_education(education)
-
-        # get interest
-        try:
-
-            _ = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
-                EC.presence_of_element_located(
-                    (
-                        By.XPATH,
-                        "//*[@class='pv-profile-section pv-interests-section artdeco-container-card artdeco-card ember-view']",
-                    )
-                )
-            )
-            interestContainer = driver.find_element_by_xpath(
-                "//*[@class='pv-profile-section pv-interests-section artdeco-container-card artdeco-card ember-view']"
-            )
-            for interestElement in interestContainer.find_elements_by_xpath(
-                "//*[@class='pv-interest-entity pv-profile-section__card-item ember-view']"
-            ):
-                interest = Interest(
-                    interestElement.find_element_by_tag_name("h3").text.strip()
-                )
-                self.add_interest(interest)
-        except:
-            pass
-
-        # get accomplishment
-        try:
-            _ = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
-                EC.presence_of_element_located(
-                    (
-                        By.XPATH,
-                        "//*[@class='pv-profile-section pv-accomplishments-section artdeco-container-card artdeco-card ember-view']",
-                    )
-                )
-            )
-            acc = driver.find_element_by_xpath(
-                "//*[@class='pv-profile-section pv-accomplishments-section artdeco-container-card artdeco-card ember-view']"
-            )
-            for block in acc.find_elements_by_xpath(
-                "//div[@class='pv-accomplishments-block__content break-words']"
-            ):
-                category = block.find_element_by_tag_name("h3")
-                for title in block.find_element_by_tag_name(
-                    "ul"
-                ).find_elements_by_tag_name("li"):
-                    accomplishment = Accomplishment(category.text, title.text)
-                    self.add_accomplishment(accomplishment)
-        except:
-            pass
-
-        # get connections
-        try:
-            driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections/")
-            _ = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "mn-connections"))
-            )
-            connections = driver.find_element_by_class_name("mn-connections")
-            if connections is not None:
-                for conn in connections.find_elements_by_class_name("mn-connection-card"):
-                    anchor = conn.find_element_by_class_name("mn-connection-card__link")
-                    url = anchor.get_attribute("href")
-                    name = conn.find_element_by_class_name("mn-connection-card__details").find_element_by_class_name("mn-connection-card__name").text.strip()
-                    occupation = conn.find_element_by_class_name("mn-connection-card__details").find_element_by_class_name("mn-connection-card__occupation").text.strip()
-
-                    contact = Contact(name=name, occupation=occupation, url=url)
-                    self.add_contact(contact)
-        except:
-            connections = None
 
         if close_on_complete:
             driver.quit()

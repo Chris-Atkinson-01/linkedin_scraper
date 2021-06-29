@@ -16,14 +16,10 @@ class Person(Scraper):
         self,
         linkedin_url=None,
         name=None,
-        about=None,
         experiences=None,
         educations=None,
-        interests=None,
-        accomplishments=None,
         company=None,
         job_title=None,
-        contacts=None,
         driver=None,
         get=True,
         scrape=True,
@@ -31,13 +27,8 @@ class Person(Scraper):
     ):
         self.linkedin_url = linkedin_url
         self.name = name
-        self.about = about or []
         self.experiences = experiences or []
         self.educations = educations or []
-        self.interests = interests or []
-        self.accomplishments = accomplishments or []
-        self.also_viewed_urls = []
-        self.contacts = contacts or []
 
         if driver is None:
             try:
@@ -60,26 +51,14 @@ class Person(Scraper):
         if scrape:
             self.scrape(close_on_complete)
 
-    def add_about(self, about):
-        self.about.append(about)
-
     def add_experience(self, experience):
         self.experiences.append(experience)
 
     def add_education(self, education):
         self.educations.append(education)
 
-    def add_interest(self, interest):
-        self.interests.append(interest)
-
-    def add_accomplishment(self, accomplishment):
-        self.accomplishments.append(accomplishment)
-
     def add_location(self, location):
         self.location = location
-
-    def add_contact(self, contact):
-        self.contacts.append(contact)
 
     def scrape(self, close_on_complete=True):
         if self.is_signed_in():
@@ -112,31 +91,6 @@ class Person(Scraper):
             )
         )
         self.name = root.text.strip()
-
-        # get about
-        try:
-            see_more = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
-                EC.presence_of_element_located(
-                    (
-                        By.CLASS_NAME,
-                        "inline-show-more-text__button",
-                    )
-                )
-            )
-            driver.execute_script("arguments[0].click();", see_more)
-
-            about = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
-                EC.presence_of_element_located(
-                    (
-                        By.CLASS_NAME,
-                        'pv-about-section',
-                    )
-                )
-            )
-        except:
-            about = None
-        if about:
-            self.add_about(about.text.strip())
 
         driver.execute_script(
             "window.scrollTo(0, Math.ceil(document.body.scrollHeight/2));"

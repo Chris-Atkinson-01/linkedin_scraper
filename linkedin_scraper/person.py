@@ -102,7 +102,7 @@ class Person(Scraper):
         )
 
         ## Click SEE MORE
-        self._click_see_more_by_class_name("pv-experience-section__see-more")
+        # self._click_see_more_by_class_name("pv-experience-section__see-more")
 
         try:
             _ = WebDriverWait(driver, self.__WAIT_FOR_ELEMENT_TIMEOUT).until(
@@ -111,6 +111,11 @@ class Person(Scraper):
             exp = driver.find_element_by_id("experience-section")
         except:
             exp = None
+
+        try:
+            driver.execute_script("arguments[0].click();", exp.find_element_by_tag_name("button"))
+        except:
+            pass
 
         if exp is not None:
             for position in exp.find_elements_by_class_name("pv-position-entity"):
@@ -126,13 +131,23 @@ class Person(Scraper):
                     except:
                         pass
 
+                    try:
+                        driver.execute_script("arguments[0].click();", position.find_element_by_tag_name("button"))
+                    except:
+                        pass
+
                     for sub_position in position.find_elements_by_class_name("pv-entity__role-details"):
                         #Get Title
                         try:
                             position_title = sub_position.find_element_by_tag_name("h3").find_elements_by_tag_name("span")[1].text.strip()
                         except:
                             position_title = None
-                        #Get Location
+
+                        try:
+                            description = sub_position.find_element_by_class_name("pv-entity__description").text.strip()
+                        except:
+                            description = None
+                        #Get Location and Times
                         if len(sub_position.find_elements_by_tag_name("h4"))>3:
                             try:
                                 location = sub_position.find_elements_by_tag_name("h4")[3].find_elements_by_tag_name("span")[1].text.strip()
@@ -176,6 +191,7 @@ class Person(Scraper):
                             to_date=to_date,
                             duration=duration,
                             location=location,
+                            description=description,
                         )
                         experience.institution_name = company
                         self.add_experience(experience)
@@ -202,6 +218,11 @@ class Person(Scraper):
                         from_date, to_date, duration = (None, None, None)
 
                     try:
+                        description = position.find_element_by_class_name("pv-entity__description").text.strip()
+                    except:
+                        description = None
+
+                    try:
                         company_employment_type = \
                         position.find_elements_by_tag_name("p")[1].find_elements_by_tag_name("span")[0].text.strip()
                     except:
@@ -225,6 +246,7 @@ class Person(Scraper):
                         to_date=to_date,
                         duration=duration,
                         location=location,
+                        description=description,
                     )
                     experience.institution_name = company
                     self.add_experience(experience)

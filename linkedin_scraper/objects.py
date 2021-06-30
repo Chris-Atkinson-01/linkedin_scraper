@@ -53,13 +53,15 @@ class Experience(Institution):
         self.location = location
 
     def __repr__(self):
-        return "{position_title} at {company} from {from_date} to {to_date} for {duration} based at {location}".format(
+        return "{position_title} at {company} from {from_date} to {to_date} for {duration} based at {location} " \
+               "with description: {description}".format(
             from_date=self.from_date,
             to_date=self.to_date,
             position_title=self.position_title,
             company=self.institution_name,
             duration=self.duration,
             location=self.location,
+            description=self.description,
         )
 
 

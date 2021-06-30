@@ -114,40 +114,120 @@ class Person(Scraper):
 
         if exp is not None:
             for position in exp.find_elements_by_class_name("pv-position-entity"):
-                position_title = position.find_element_by_tag_name("h3").text.strip()
-
+                #If else statement seperates detailed experience/simple experience layout
                 try:
-                    company = position.find_elements_by_tag_name("p")[1].text.strip()
-                    times = str(
-                        position.find_elements_by_tag_name("h4")[0]
-                        .find_elements_by_tag_name("span")[1]
-                        .text.strip()
-                    )
-                    from_date = " ".join(times.split(" ")[:2])
-                    to_date = " ".join(times.split(" ")[3:])
-                    duration = (
-                        position.find_elements_by_tag_name("h4")[1]
-                        .find_elements_by_tag_name("span")[1]
-                        .text.strip()
-                    )
-                    location = (
-                        position.find_elements_by_tag_name("h4")[2]
-                        .find_elements_by_tag_name("span")[1]
-                        .text.strip()
-                    )
+                    detailed_experience_bool = 'Company Name' in position.find_element_by_tag_name("h3").find_elements_by_tag_name("span")[0].text.strip()
                 except:
-                    company = None
-                    from_date, to_date, duration, location = (None, None, None, None)
+                    detailed_experience_bool=False
 
-                experience = Experience(
-                    position_title=position_title,
-                    from_date=from_date,
-                    to_date=to_date,
-                    duration=duration,
-                    location=location,
-                )
-                experience.institution_name = company
-                self.add_experience(experience)
+                if detailed_experience_bool == True:
+                    try:
+                        company = position.find_element_by_tag_name("h3").find_elements_by_tag_name("span")[1].text.strip()
+                    except:
+                        pass
+
+                    for sub_position in position.find_elements_by_class_name("pv-entity__role-details"):
+                        #Get Title
+                        try:
+                            position_title = sub_position.find_element_by_tag_name("h3").find_elements_by_tag_name("span")[1].text.strip()
+                        except:
+                            position_title = None
+                        #Get Location
+                        if len(sub_position.find_elements_by_tag_name("h4"))>3:
+                            try:
+                                location = sub_position.find_elements_by_tag_name("h4")[3].find_elements_by_tag_name("span")[1].text.strip()
+                            except:
+                                location = None
+
+                            try:
+                                times = str(
+                                    sub_position.find_elements_by_tag_name("h4")[1]
+                                        .find_elements_by_tag_name("span")[1]
+                                        .text.strip()
+                                )
+                                from_date = " ".join(times.split(" ")[:2])
+                                to_date = " ".join(times.split(" ")[3:])
+                            except:
+                                from_date = None
+                                to_date = None
+                        else:
+                            try:
+                                location = sub_position.find_elements_by_tag_name("h4")[2].find_elements_by_tag_name("span")[1].text.strip()
+                            except:
+                                location = None
+
+                            try:
+                                times = str(
+                                    sub_position.find_elements_by_tag_name("h4")[0]
+                                        .find_elements_by_tag_name("span")[1]
+                                        .text.strip()
+                                )
+                                from_date = " ".join(times.split(" ")[:2])
+                                to_date = " ".join(times.split(" ")[3:])
+                            except:
+                                from_date = None
+                                to_date = None
+
+                        duration = None
+
+                        experience = Experience(
+                            position_title=position_title,
+                            from_date=from_date,
+                            to_date=to_date,
+                            duration=duration,
+                            location=location,
+                        )
+                        experience.institution_name = company
+                        self.add_experience(experience)
+
+
+                if detailed_experience_bool == False:
+                    position_title = position.find_element_by_tag_name("h3").text.strip()
+                    try:
+                        company = position.find_elements_by_tag_name("p")[1].text.strip()
+                        times = str(
+                            position.find_elements_by_tag_name("h4")[0]
+                            .find_elements_by_tag_name("span")[1]
+                            .text.strip()
+                        )
+                        from_date = " ".join(times.split(" ")[:2])
+                        to_date = " ".join(times.split(" ")[3:])
+                        duration = (
+                            position.find_elements_by_tag_name("h4")[1]
+                            .find_elements_by_tag_name("span")[1]
+                            .text.strip()
+                        )
+                    except:
+                        company = None
+                        from_date, to_date, duration = (None, None, None)
+
+                    try:
+                        company_employment_type = \
+                        position.find_elements_by_tag_name("p")[1].find_elements_by_tag_name("span")[0].text.strip()
+                    except:
+                        company_employment_type = None
+
+                    if company_employment_type:
+                        company=company.replace(company_employment_type, '').strip()
+
+                    try:
+                        location = (
+                            position.find_elements_by_tag_name("h4")[2]
+                            .find_elements_by_tag_name("span")[1]
+                            .text.strip()
+                        )
+                    except:
+                        location = None
+
+                    experience = Experience(
+                        position_title=position_title,
+                        from_date=from_date,
+                        to_date=to_date,
+                        duration=duration,
+                        location=location,
+                    )
+                    experience.institution_name = company
+                    self.add_experience(experience)
 
         # get location
         location = driver.find_element_by_class_name(f"{self.__TOP_CARD}--list-bullet")
@@ -199,8 +279,15 @@ class Person(Scraper):
                     )
                 except:
                     field_of_study = None
+
+                try:
+                    activities_societies = school.find_element_by_class_name("activities-societies").text.strip()
+                except BaseException as e:
+                    activities_societies = None
+
                 education = Education(
-                    from_date=from_date, to_date=to_date, degree=degree, field_of_study=field_of_study
+                    from_date=from_date, to_date=to_date, degree=degree, field_of_study=field_of_study,
+                    activities_societies=activities_societies
                 )
                 education.institution_name = university
                 self.add_education(education)
@@ -325,12 +412,8 @@ class Person(Scraper):
             return None
 
     def __repr__(self):
-        return "{name}\n\nAbout\n{about}\n\nExperience\n{exp}\n\nEducation\n{edu}\n\nInterest\n{int}\n\nAccomplishments\n{acc}\n\nContacts\n{conn}".format(
+        return "{name}\n\nExperience\n{exp}\n\nEducation\n{edu}\n".format(
             name=self.name,
-            about=self.about,
             exp=self.experiences,
             edu=self.educations,
-            int=self.interests,
-            acc=self.accomplishments,
-            conn=self.contacts,
         )

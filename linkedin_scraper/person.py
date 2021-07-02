@@ -128,7 +128,7 @@ class Person(Scraper):
                     try:
                         company = position.find_element_by_tag_name("h3").find_elements_by_tag_name("span")[1].text.strip()
                     except:
-                        pass
+                        company = None
 
                     for sub_position in position.find_elements_by_class_name("pv-entity__role-details"):
                         #Get Title
@@ -195,12 +195,18 @@ class Person(Scraper):
                     position_title = position.find_element_by_tag_name("h3").text.strip()
                     try:
                         company = position.find_elements_by_tag_name("p")[1].text.strip()
+                    except:
+                        company = None
+
+                    try:
                         times = str(
                             position.find_elements_by_tag_name("h4")[0]
                             .find_elements_by_tag_name("span")[1]
                             .text.strip()
                         )
-                        if len(times.split(" "))>3:
+                        print(times)
+                        print(len(times.split()))
+                        if len(times.split(" "))!=3:
                             from_date = " ".join(times.split(" ")[:2])
                             to_date = " ".join(times.split(" ")[3:])
                             duration = (
@@ -213,8 +219,9 @@ class Person(Scraper):
                             to_date = times.split(" ")[2]
                             duration = None
 
-                    except:
-                        company = None
+                    except BaseException as e:
+                        print(e)
+                        print('Other Error')
                         from_date, to_date, duration = (None, None, None)
 
                     try:
@@ -228,7 +235,7 @@ class Person(Scraper):
                     except:
                         company_employment_type = None
 
-                    if company_employment_type:
+                    if company_employment_type and company:
                         company=company.replace(company_employment_type, '').strip()
 
                     try:
@@ -302,8 +309,7 @@ class Person(Scraper):
                     try:
                         from_date = school.find_elements_by_tag_name('time')[0].text.strip()
                         to_date = school.find_elements_by_tag_name('time')[1].text.strip()
-                    except BaseException as e:
-                        print(e)
+                    except:
                         from_date, to_date = (None, None)
                 try:
                     field_of_study = (

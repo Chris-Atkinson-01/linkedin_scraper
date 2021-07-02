@@ -44,6 +44,7 @@ class Experience(Institution):
         position_title=None,
         duration=None,
         location=None,
+        institution_name=None,
     ):
         self.from_date = from_date
         self.to_date = to_date
@@ -51,6 +52,7 @@ class Experience(Institution):
         self.position_title = position_title
         self.duration = duration
         self.location = location
+        self.institution_name = institution_name
 
     def __repr__(self):
         return "{position_title} at {company} from {from_date} to {to_date} for {duration} based at {location} " \
@@ -74,13 +76,14 @@ class Education(Institution):
     activities_societies = None
 
     def __init__(self, from_date=None, to_date=None, description=None, degree=None, field_of_study=None,
-                 activities_societies=None):
+                 activities_societies=None, institution_name=None):
         self.from_date = from_date
         self.to_date = to_date
         self.description = description
         self.degree = degree
         self.field_of_study = field_of_study
         self.activities_societies = activities_societies
+        self.institution_name = institution_name
 
     def __repr__(self):
         return "{degree} in {field_of_study} at {company} from {from_date} to {to_date} and member of {activities_societies}".format(
